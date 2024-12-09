@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000
 
 // middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://nimble-marzipan-80622c.netlify.app','https://firebase.google.com','https://console.firebase.google.com/u/0/project/stayvista-ef3a5/overview', 'https://console.firebase.google.com/u/0/project/stayvista-ef3a5/authentication/users'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://nimble-marzipan-80622c.netlify.app','https://firebase.google.com','https://console.firebase.google.com/u/0/project/stayvista-ef3a5/overview', 'https://console.firebase.google.com/u/0/project/stayvista-ef3a5/authentication/users','https://prescripto-f40d1.web.app','https://prescripto-f40d1.firebaseapp.com','https://imgbb.com','https://api.imgbb.com','https://prince-mahmood.imgbb.com','https://www.nodemailer.com','https://stripe.com','https://console.firebase.google.com/u/0/project/prescripto-f40d1/authentication/users','https://console.firebase.google.com/u/0/project/prescripto-f40d1/overview','https://dainty-queijadas-72163c.netlify.app'],
   credentials: true,
   optionSuccessStatus: 200,
 }
@@ -93,6 +93,12 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 })
+
+const cookieOption = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production' ? true : false,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+}
 
 async function run() {
   try {
@@ -482,11 +488,7 @@ async function run() {
         expiresIn: '365d',
       })
       res
-        .cookie('token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        })
+        .cookie('token', token, cookieOption )
         .send({ success: true })
     })
 
@@ -496,9 +498,8 @@ async function run() {
       try {
         res
           .clearCookie('token', {
-            maxAge: 0,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            ...cookieOption,
+            maxAge: 0,    
           })
           .send({ success: true })
         // console.log('Logout successful')
